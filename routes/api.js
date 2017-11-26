@@ -1,8 +1,9 @@
-var express = require('express');
-var AuthController = require('../controllers/AuthController');
-var WalletController = require('../controllers/WalletController');
-var UserController = require('../controllers/UserController');
-var router = express.Router();
+let express               = require('express');
+let AuthController        = require('../controllers/AuthController');
+let WalletController      = require('../controllers/WalletController');
+let UserController        = require('../controllers/UserController');
+let TransactionController = require('../controllers/TransactionController');
+let router                = express.Router();
 
 router.post('/register', AuthController.Register);
 router.post('/login', AuthController.Login);
@@ -16,6 +17,6 @@ router.delete('/wallet/:id', WalletController.Delete); // pending
 router.get('/user/wallet', UserController.GetWallets); // pending
 router.get('/user/total-info', UserController.GetTotalInfo); // pending
 
-router.post('/transaction'); // pending
+router.post('/transaction', TransactionController.Create);
 
 module.exports = router;

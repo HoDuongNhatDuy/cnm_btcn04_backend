@@ -3,19 +3,19 @@ var mongoose = require('mongoose');
 var TransactionSchema = new mongoose.Schema(
     {
         description: {type: String, required: true},
-        from_user: {
+        source_user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         },
-        from_wallet: {
+        source_wallet: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Wallet'
         },
-        to_user: {
+        dest_user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         },
-        to_wallet: {
+        dest_wallet: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Wallet'
         },

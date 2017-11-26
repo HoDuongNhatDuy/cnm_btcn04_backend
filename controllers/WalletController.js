@@ -1,7 +1,27 @@
 let Wallet = require('../models/Wallet');
+let Transaction = require('../models/Transaction');
+let GlobalController = require('../controllers/GlobalController');
 
 exports.Get = function (req, res, next) {
-    res.json({status: 0});
+    let wallet_id = req.params.id;
+
+    let result = {};
+    Wallet.findById(wallet_id).exec()
+        .then(function (wallet) {
+            result = JSON.parse(JSON.stringify(wallet));
+
+            Transaction.find().where({$or: [{source_user: wallet.user}, {dest_user: wallet.user}]}).exec()
+                .then(function (transactions) {
+                    let total = GlobalController.GetTotalTransaction(transactions);
+
+                    result.total = total;
+                    res.json({
+                        status: 1,
+                        message: "Got wallet successfully",
+                        data: result
+                    });
+                });
+        });
 };
 
 exports.GetTransactions = function (req, res, next) {
