@@ -1,5 +1,5 @@
-let Wallet = require('../models/Wallet');
-let Transaction = require('../models/Transaction');
+let Wallet           = require('../models/Wallet');
+let Transaction      = require('../models/Transaction');
 let GlobalController = require('../controllers/GlobalController');
 
 exports.Get = function (req, res, next) {
@@ -14,7 +14,8 @@ exports.Get = function (req, res, next) {
                 .then(function (transactions) {
                     let total = GlobalController.GetTotalTransaction(transactions);
 
-                    result.total = total;
+                    result.total        = total;
+                    result.transactions = transactions;
                     res.json({
                         status: 1,
                         message: "Got wallet successfully",
@@ -35,7 +36,7 @@ exports.Create = function (req, res, next) {
 
     let newWallet = new Wallet(req.body);
     newWallet.save(function (err, wallet) {
-        if (err){
+        if (err) {
             res.json({
                 status: 0,
                 message: err.message
