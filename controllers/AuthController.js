@@ -1,13 +1,14 @@
 let User = require('../models/User');
 let GlobalController = require('../controllers/GlobalController');
 let Wallet = require('../models/Wallet');
+let Transaction = require('../models/Transaction');
 
 exports.Login = function (req, res, next) {
     let username = req.body.username;
     let password = req.body.password;
 
     User.GetByUsername(username, function (err, user) {
-        if (err){
+        if (err || !user){
             res.json({
                 status: 0,
                 message: "User not found"
@@ -69,16 +70,16 @@ exports.Register = function (req, res, next) {
             "name": "Default Wallet",
             "description": "Default Wallet"
         });
-        newWallet.save(function (wallet) {
+        newWallet.save(function (error, wallet) {
             GlobalController.GetAdminWallet(function (admin_wallet_data) {
-                if (!admin_wallet_data.status){
+                if (admin_wallet_data.status == 0){
                     res.json(admin_wallet_data);
                     return null;
                 }
 
                 GlobalController.CreateTransaction(admin_wallet_data.data.id, wallet.id, 1000, "Init wallet", function (create_transaction_result) {
-                    if (!create_transaction_result.status){
-                        res.json(admin_wallet_data);
+                    if (create_transaction_result.status == 0){
+                        res.json(create_transaction_result);
                         return null;
                     }
 
@@ -103,15 +104,15 @@ function createAdminUser(callback) {
     });
 
     User.CreateUser(newUser, function (err, user) {
-        let newWalletData = {
+        let newWalletData = new Wallet({
             "user": user.id,
             "name": "Admin Wallet",
             "description": "Admin Wallet"
-        };
+        });
 
         newWalletData.save()
-            .then(function (error, newWallet) {
-                if (error){
+            .then(function (newWallet) {
+                if (!newWallet){
                     callback({
                         status: 0,
                         message: "Fail to create wallet"
@@ -119,7 +120,7 @@ function createAdminUser(callback) {
                     return null;
                 }
 
-                let newTransaction = {
+                let newTransaction = new Transaction({
                     description: "Init",
                     source_user: null,
                     source_wallet: null,
@@ -127,12 +128,12 @@ function createAdminUser(callback) {
                     dest_wallet: newWallet.id,
                     amount: 99999999999999,
                     created_at: new Date().toISOString()
-                };
+                });
 
                 return newTransaction.save();
             })
-            .then(function (error, newTransaction) {
-                if (error){
+            .then(function (newTransaction) {
+                if (!newTransaction){
                     callback({
                         status: 0,
                         message: "Fail init transaction"

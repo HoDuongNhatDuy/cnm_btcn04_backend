@@ -21,7 +21,7 @@ exports.CreateTransaction = function (sourceWalletId, destWalletId, amount, desc
 
     Wallet.findById(sourceWalletId).exec()
         .then(function (srcWallet) {
-            if (srcWallet.errors) {
+            if (!srcWallet) {
                 callback({
                     status: 0,
                     message: wallet.errors
@@ -30,7 +30,7 @@ exports.CreateTransaction = function (sourceWalletId, destWalletId, amount, desc
             }
             sourceWallet = srcWallet;
 
-            return Transaction.find().where({$or: [{source_wallet: sourceWalletId}, {dest_wallet: destWalletId}]}).exec();
+            return Transaction.find().where({$or: [{source_wallet: sourceWalletId}, {dest_wallet: sourceWalletId}]}).exec();
         })
         .then(function (transactions) {
             let total = GlobalController.GetTotalTransaction(sourceWalletId, transactions);
@@ -100,7 +100,7 @@ exports.GetAdminWallet = function (callback) {
 
         Wallet.findOne({user: user.id}, function (error, wallet) {
             callback({
-                status: 0,
+                status: 1,
                 media: "Get wallet successfully",
                 data: wallet
             })
