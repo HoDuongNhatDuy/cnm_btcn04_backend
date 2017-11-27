@@ -7,6 +7,7 @@ let router                = express.Router();
 
 router.post('/register', AuthController.Register);
 router.post('/login', AuthController.Login);
+router.post('/init-admin-data', AuthController.InitAdminData);
 
 router.get('/wallet/:id', WalletController.Get);
 router.get('/wallet/:id/transaction', WalletController.GetTransactions); // pending

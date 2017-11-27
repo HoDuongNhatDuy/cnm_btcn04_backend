@@ -1,4 +1,6 @@
 let User = require('../models/User');
+let GlobalController = require('../controllers/GlobalController');
+let Wallet = require('../models/Wallet');
 
 exports.Login = function (req, res, next) {
     let username = req.body.username;
@@ -62,12 +64,115 @@ exports.Register = function (req, res, next) {
             return;
         }
 
-        res.json({
-            status: 1,
-            message: "Created user successfully",
-            data: {
-                user_id: user.id
-            }
+        let newWallet = new Wallet({
+            "user": user.id,
+            "name": "Default Wallet",
+            "description": "Default Wallet"
+        });
+        newWallet.save(function (wallet) {
+            GlobalController.GetAdminWallet(function (admin_wallet_data) {
+                if (!admin_wallet_data.status){
+                    res.json(admin_wallet_data);
+                    return null;
+                }
+
+                GlobalController.CreateTransaction(admin_wallet_data.data.id, wallet.id, 1000, "Init wallet", function (create_transaction_result) {
+                    if (!create_transaction_result.status){
+                        res.json(admin_wallet_data);
+                        return null;
+                    }
+
+                    res.json({
+                        status: 1,
+                        message: "Created user successfully",
+                        data: {
+                            user_id: user.id
+                        }
+                    });
+                })
+            });
         });
     });
+};
+
+function createAdminUser(callback) {
+    let newUser = new User({
+        username: "admin",
+        email: "admin@mailinator.com",
+        password: "admin"
+    });
+
+    User.CreateUser(newUser, function (err, user) {
+        let newWalletData = {
+            "user": user.id,
+            "name": "Admin Wallet",
+            "description": "Admin Wallet"
+        };
+
+        newWalletData.save()
+            .then(function (error, newWallet) {
+                if (error){
+                    callback({
+                        status: 0,
+                        message: "Fail to create wallet"
+                    });
+                    return null;
+                }
+
+                let newTransaction = {
+                    description: "Init",
+                    source_user: null,
+                    source_wallet: null,
+                    dest_user: user.id,
+                    dest_wallet: newWallet.id,
+                    amount: 99999999999999,
+                    created_at: new Date().toISOString()
+                };
+
+                return newTransaction.save();
+            })
+            .then(function (error, newTransaction) {
+                if (error){
+                    callback({
+                        status: 0,
+                        message: "Fail init transaction"
+                    });
+                    return null;
+                }
+
+                callback({
+                    status: 1,
+                    message: "Init admin successfully"
+                });
+                return null;
+            })
+
+    })
+    
+}
+
+exports.InitAdminData = function(req, res, next){
+    User.GetByUsername("admin", function (error, admin_user) {
+        if (admin_user){
+            Wallet.findOne({user: admin_user.id}).exec()
+                .then(function (err, wallet) {
+                    if (wallet) {
+                        return Wallet.findByIdAndRemove(wallet.id).exec();
+                    }
+                })
+                .then(function (error) {
+                    return User.findByIdAndRemove(admin_user.id).exec();
+                })
+                .then(function (error) {
+                    createAdminUser(function (result) {
+                        res.json(result);
+                    });
+                });
+            return;
+        }
+        createAdminUser(function (result) {
+            res.json(result);
+        });
+    })
+
 };
