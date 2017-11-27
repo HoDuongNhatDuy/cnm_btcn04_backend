@@ -15,7 +15,7 @@ router.put('/wallet/:id', WalletController.Update); // pending
 router.delete('/wallet/:id', WalletController.Delete); // pending
 
 router.get('/user/:id/wallet', UserController.GetWallets);
-router.get('/user/total-info', UserController.GetTotalInfo); // pending
+router.get('/user/:id/total-info', UserController.GetTotalInfo);
 
 router.post('/transaction', TransactionController.Create);
 
