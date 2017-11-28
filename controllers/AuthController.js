@@ -107,7 +107,8 @@ function createAdminUser(callback) {
         let newWalletData = new Wallet({
             "user": user.id,
             "name": "Admin Wallet",
-            "description": "Admin Wallet"
+            "description": "Admin Wallet",
+            "amount": 99999999999999
         });
 
         newWalletData.save()

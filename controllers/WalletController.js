@@ -12,7 +12,7 @@ exports.Get = function (req, res, next) {
 
             Transaction.find().where({$or: [{source_user: wallet.user}, {dest_user: wallet.user}]}).exec()
                 .then(function (transactions) {
-                    let total = GlobalController.GetTotalTransaction(transactions);
+                    let total = GlobalController.GetTotalTransaction(wallet.id, transactions);
 
                     result.total        = total;
                     result.transactions = transactions;

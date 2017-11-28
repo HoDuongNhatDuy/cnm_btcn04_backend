@@ -54,6 +54,28 @@ exports.CreateTransaction = function (sourceWalletId, destWalletId, amount, desc
             }
             destWallet = desWallet;
 
+            let sourceAmount = sourceWallet.amount - amount;
+            return sourceWallet.update({amount: sourceAmount}).exec();
+        })
+        .then(function (result) {
+            if (result && result.ok != 1) {
+                callback({
+                    status: 0,
+                    message: "Can't update wallet"
+                });
+                return null;
+            }
+            let destAmount = destWallet.amount + amount;
+            return destWallet.update({amount: destAmount});
+        })
+        .then(function (result) {
+            if (result && result.ok != 1) {
+                callback({
+                    status: 0,
+                    message: "Can't update wallet"
+                });
+                return null;
+            }
             let sourceUserId = sourceWallet.user.toString();
             let destUserId   = destWallet.user.toString();
 

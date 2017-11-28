@@ -41,7 +41,7 @@ exports.GetTotalInfo = function (req, res, next) {
         .then(function (wallets_result) {
             wallets = wallets_result;
 
-            return Transaction.find().where({$or: [{source_user: user_id}, {dest_user: user_id}]}).limit(5).sort({created_at: -1}).exec()
+            return Transaction.find().where({$or: [{source_user: user_id}, {dest_user: user_id}]}).limit(5).sort({created_at: -1}).populate(["source_wallet", "source_user"]).exec()
         })
         .then(function (transactions) {
             result = {
