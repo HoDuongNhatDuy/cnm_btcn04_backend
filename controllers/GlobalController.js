@@ -65,7 +65,7 @@ exports.CreateTransaction = function (sourceWalletId, destWalletId, amount, desc
                 });
                 return null;
             }
-            let destAmount = destWallet.amount + amount;
+            let destAmount = parseFloat(destWallet.amount) + parseFloat(amount);
             return destWallet.update({amount: destAmount});
         })
         .then(function (result) {

@@ -8,9 +8,17 @@ exports.Get = function (req, res, next) {
     let result = {};
     Wallet.findById(wallet_id).exec()
         .then(function (wallet) {
+            if (!wallet){
+                res.json({
+                    status: 0,
+                    message: "Wallet not found",
+                    data: result
+                });
+                return null;
+            }
             result = JSON.parse(JSON.stringify(wallet));
 
-            Transaction.find().where({$or: [{source_user: wallet.user}, {dest_user: wallet.user}]}).exec()
+            Transaction.find().where({$or: [{source_wallet: wallet._id}, {dest_wallet: wallet._id}]}).populate(["source_wallet", "source_user"]).exec()
                 .then(function (transactions) {
                     let total = GlobalController.GetTotalTransaction(wallet.id, transactions);
 
