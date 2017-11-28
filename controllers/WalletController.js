@@ -18,7 +18,7 @@ exports.Get = function (req, res, next) {
             }
             result = JSON.parse(JSON.stringify(wallet));
 
-            Transaction.find().where({$or: [{source_wallet: wallet._id}, {dest_wallet: wallet._id}]}).populate(["source_wallet", "source_user"]).exec()
+            Transaction.find().where({$or: [{source_wallet: wallet._id}, {dest_wallet: wallet._id}]}).sort({created_at: -1}).populate(["source_wallet", "source_user"]).exec()
                 .then(function (transactions) {
                     let total = GlobalController.GetTotalTransaction(wallet.id, transactions);
 

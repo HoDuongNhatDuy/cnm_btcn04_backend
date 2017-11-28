@@ -34,7 +34,7 @@ exports.CreateTransaction = function (sourceWalletId, destWalletId, amount, desc
         })
         .then(function (transactions) {
             let total = GlobalController.GetTotalTransaction(sourceWalletId, transactions);
-            if (total < amount){
+            if (total < amount) {
                 callback({
                     status: 0,
                     message: "Insufficient balance"
@@ -45,10 +45,10 @@ exports.CreateTransaction = function (sourceWalletId, destWalletId, amount, desc
             return Wallet.findById(destWalletId).exec();
         })
         .then(function (desWallet) {
-            if (desWallet.errors) {
+            if (!desWallet) {
                 callback({
                     status: 0,
-                    message: wallet.errors
+                    message: error
                 });
                 return null;
             }
@@ -107,6 +107,14 @@ exports.CreateTransaction = function (sourceWalletId, destWalletId, amount, desc
                 });
                 return null;
             });
+        })
+        .catch(function (error) {
+            console.log(error);
+            callback({
+                status: 0,
+                message: "Unknown error"
+            });
+            return null;
         });
 };
 
